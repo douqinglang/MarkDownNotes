@@ -1,7 +1,7 @@
 ## centos 常用命令
 查看硬盘和分区-- # df -h
 解决bash: ip: command not found问题: # yum -y install initscripts
-解决bash: netstat: command not found问题: # yum install -y net-tools
+解决bash: netstat: command not found问题: # yum install -y net-tools 
 
 ## linux 日志系统
 /var/log/meaasge    	#所有日志
