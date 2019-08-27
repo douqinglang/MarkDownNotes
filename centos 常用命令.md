@@ -1,9 +1,3 @@
-物理机
-3.50--->root--->Yian@2018
-3.55--->root--->Yian@#2018
-3.56--->root--->Yian@#2018
-
-
 ## centos 常用命令
 查看硬盘和分区-- # df -h
 解决bash: ip: command not found问题: # yum -y install initscripts
