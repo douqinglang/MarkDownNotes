@@ -92,6 +92,56 @@ www.abc.com              远程服务器的域名（当然也可以使用该服�
 /usr/local/sin.sh           欲复制到本机的位于远程服务器上的文件
 /home/administrator  将远程文件复制到本地的绝对路径
 
+## centos 自启动服务或脚本
+### 添加开机自启服务
+docker 服务为例，设置如下两条命令即可
+```bash
+# systemctl enable docker.service #设置docker服务为自启动服务 相当于我们的 chkconfig docker on
+# systemctl start docker.service #启动docker服务
+```
+
+### 添加开机自启脚本
+centos7中增加脚本有两种常用的方法,helloworld.sh为例
+```bash
+#!/bin/bash
+# chkconfig: 2345 10 90 
+# description: myservice ....
+echo "hello world"
+```
+
+#### 方法一
+1. 赋予脚本可执行权限(/home/test.sh是你的脚本路径)
+```bash
+# chmod +x /home/test.sh
+```
+
+2. 打开/etc/rc.d/rc.local文件，在末尾增加如下内容
+```bash
+echo "/home/test.sh" >> /etc/rc.d/rc.local
+```
+
+3. 在centos7中，/etc/rc.d/rc.local的权限被降低了，所以需要执行如下命令赋予其可执行权限
+```bash
+chmod +x /etc/rc.d/rc.local
+```
+
+#### 方法二
+1. 将脚本移动到/etc/rc.d/init.d目录下
+```bash
+# mv  /home/test.sh /etc/rc.d/init.d
+```
+
+2. 增加脚本的可执行权限
+```bash
+chmod +x  /etc/rc.d/init.d/test.sh
+```
+
+3. 添加脚本到开机自动启动项目中
+```bash
+cd /etc/rc.d/init.d
+chkconfig --add test.sh
+chkconfig test.sh on
+```
 ## find命令查找文件或文件夹
 ### 精确查找
 find / (查找范围) -name "查找名字" -type d  -- 查找文件夹
@@ -186,6 +236,34 @@ find / (查找范围) -name "查找名字"          -- 查找文件
 	s 套接字
 	p Fifo
 
+## shell 脚本 - 安全无限制启动vncserver
+```bash
+#!/bin/sh
+file="/tmp/.X1-lock"
+sfile="/tmp/.X11-unix/X1"
+svcname="Xvnc"
+if  ! ps -ef | grep $svcname | egrep -v grep >/dev/null
+then
+    if [ -S $sfile ]
+    then
+        echo "$sfile  is existed 删除$sfile 文件"
+        rm -rf $sfile
+    fi
+    if [ -f $file ]
+    then
+        echo "$file is existed 删除$file 文件"
+        rm -rf $file
+    fi
+    echo "$svcname is not started! 启动 vncserver :1"
+    vncserver :1
+    echo "执行 vncserver -list 查看vnc窗口号"
+    vncserver -list
+    echo "查看 ps命令执行结果"
+    ps -ef | grep vnc
+else
+    echo "$svcname is started"
+fi
+```
 
 
 
