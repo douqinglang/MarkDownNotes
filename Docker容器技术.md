@@ -14,7 +14,10 @@ Docker用Registry来保存镜像. Registry有公共和私有两种. Docker公司
 -p指定要映射的端口，一个指定端口上只可以绑定一个容器
 -P将容器内部开放的网络端口随机映射到宿主机的一个端口上
 docker run -di --name=centos7-xfce-vnc-demo --privileged=true -p 45901:5901 centos:latest /usr/sbin/init
+- -di 后台守护式进程启动 容器启动后以后台方式运行, 并执行 /usr/sbin/init 脚本
 docker run -di --name=centos-xfce-vnc-dhl centos-xfce-vnc:2.0 /bin/bash
+docker run -it --name=xfce-vnc-0828 xfce-vnc-0828:2.1 /usr/local/bin/bash
+- -it 前台启动, 容器启动后立刻进入容器运行 /usr/local/bin/bash shell脚本
 
 2. docker进入容器
 docker exec -it 43e575457614(或者容器名称) /bin/bash
@@ -48,4 +51,13 @@ docker ps
 docker container list -all
 13. Docker导入本地镜像
 cat 本地镜像名.tar.gz | docker import - 导入镜像名:版本号
-14. 
+14. 从容器中创建一个镜像
+docker commit [options] containerID [repository[:tag]]
+options说明:
+-a: 提交镜像的作者
+-c: 使用Dockerfile指令创建镜像
+-m: 提交时的说明
+-p: 在提交时将容器暂停
+15. 在docker镜像仓库中保存(下载)镜像到本地
+docker save -o 本地要保存的镜像名.tar 远程镜像名(imageId)  # -o：指定保存的镜像的名字
+15. 

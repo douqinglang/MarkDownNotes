@@ -44,10 +44,11 @@ netstat -tunlp 			#用于显示tcp，udp的端口和进程等相关情况
 ## 查找隐藏文件或隐藏文件
 ls -al
 mv a.txt .a.txt  // .开头的都是隐藏的
+ls -lh		//按照mb显示文件大小
 
 ## 备份centos系统
 ```bash
-tar -cvpzf /home/xfce-vnc-2.tar.gz --directory=/ --exclude=/dev --exclude=/home/xfce-vnc-2.tar.gz --exclude=/media --exclude=/mkimage-yum.sh --exclude=/mnt --exclude=/proc --exclude=/sys --exclude=/tmp /
+tar -cvpf /home/xfce-vnc-2.tar --directory=/ --exclude=/dev --exclude=/home/xfce-vnc-2.tar --exclude=/media --exclude=/mkimage-yum.sh --exclude=/mnt --exclude=/proc --exclude=/sys --exclude=/tmp /
 ```
 
 tar 程序命令
@@ -71,6 +72,62 @@ tar 程序命令
 /usr 最庞大的目录，要用到的应用程序和文件几乎都在这个目录
 [Linux各目录及每个目录的详细介绍](https://www.cnblogs.com/zhuchenglin/p/8686924.html)
 
+## tar,gzip命令详解
+### tar [-cxtzjvfpPN] 文件与目录 ...
+1. 参数：
+-c ：建立一个压缩文件的参数指令(create 的意思)；
+-x ：解开一个压缩文件的参数指令！
+-t ：查看tarfile 里面的文件！
+特别注意，在参数的下达中，c/x/t 仅能存在一个！不可同时存在！
+
+-z ：是否同时具有gzip 的属性？亦即是否需要用gzip 压缩？
+-j ：是否同时具有bzip2 的属性？亦即是否需要用bzip2 压缩？
+-v ：压缩的过程中显示文件！这个常用，但不建议用在背景执行过程！
+-f ：使用档名，请留意，在f 之后要立即接档名喔！不要再加参数！
+2. 示例
+```bash
+[root@linux ~]# tar -cvf /tmp/etc.tar /etc <==仅打包，不压缩！
+[root@linux ~]# tar -zcvf /tmp/etc.tar.gz /etc <==打包后，以gzip 压缩
+[root@linux ~]# tar -jcvf /tmp/etc.tar.bz2 /etc <==打包后，以bzip2 压缩
+```
+
+参数f 之后的文件档名是自己取的，我们习惯上都用.tar 来作为辨识
+z 参数，则以.tar.gz 或.tgz 来代表gzip 压缩过的tar file
+j 参数，则以.tar.bz2 
+### gzip, zcat 命令
+```bash
+[root@linux ~]# gzip [-cdt#] 档名
+[root@linux ~]# zcat 档名.gz
+```
+
+-c ：将压缩的资料输出到萤幕上，可透过资料流重导向来处理；
+-d ：解压缩的参数；
+-t ：可以用来检验一个压缩档的一致性～看看文件有无错误；
+-# ：压缩等级，-1 最快，但是压缩比最差、-9 最慢，但是压缩比最好！预设是-6 ～
+```bash
+# 将/etc/man.config 複制到/tmp ，并且以gzip 压缩
+[root@linux ~]# cd /tmp
+[root@linux tmp]# cp /etc/man.config .
+[root@linux tmp]# gzip man.config
+# 将范例一的文件内容读出来
+[root@linux tmp]# zcat man.config.gz
+# 将范例一的文件解压缩
+[root@linux tmp]# gzip -d man.config.gz
+# 将范例三解开的man.config 用最佳的压缩比压缩，并保留原本的文件
+[root@linux tmp]# gzip -9 -c man.config > man.config.gz
+gzip -9 man.config 直接压缩, 不保留源文件
+```
+### bzip2, bzcat 命令
+```bash
+[root@linux ~]# bzip2 [-cdz] 档名
+[root@linux ~]# bzcat 档名.bz2
+```
+
+-c ：将压缩的过程产生的资料输出到萤幕上！
+-d ：解压缩的参数
+-z ：压缩的参数
+-# ：与gzip 同样的，都是在计算压缩比的参数，-9 最佳，-1 最快！
+用法和gzip类似
 ## scp命令的使用
 ### 将本机文件赋值到远程服务器
 ```bash
@@ -238,16 +295,24 @@ find / (查找范围) -name "查找名字"          -- 查找文件
 
 ## shell 脚本 - 安全无限制启动vncserver
 ```bash
-#!/bin/sh
+#!/bin/bash
+# chkconfig: 2345 100 95
+# description: start vncserver :1 port 5901
 file="/tmp/.X1-lock"
-sfile="/tmp/.X11-unix/X1"
+tmpDirectory="/tmp/"
+directory="/tmp/.X11-unix/"
 svcname="Xvnc"
 if  ! ps -ef | grep $svcname | egrep -v grep >/dev/null
 then
-    if [ -S $sfile ]
+    if [ -d $tmpDirectory ]
     then
-        echo "$sfile  is existed 删除$sfile 文件"
-        rm -rf $sfile
+        echo "tmp文件夹不存在, 创建/tmp/文件夹中..."
+        mkdir $tmpDirectory
+        chmod 1777 $tmpDirectory
+    if [ -d $directory ]
+    then
+        echo "$directory  is existed 删除$directory 文件夹"
+        rm -rf $directory
     fi
     if [ -f $file ]
     then
@@ -255,14 +320,16 @@ then
         rm -rf $file
     fi
     echo "$svcname is not started! 启动 vncserver :1"
-    vncserver :1
+   vncserver :1
     echo "执行 vncserver -list 查看vnc窗口号"
-    vncserver -list
+   vncserver -list
     echo "查看 ps命令执行结果"
     ps -ef | grep vnc
 else
     echo "$svcname is started"
 fi
+/usr/bin/bash
+
 ```
 
 
