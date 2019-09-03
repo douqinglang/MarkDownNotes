@@ -21,6 +21,11 @@ docker run -it --name=xfce-vnc-0828 xfce-vnc-0828:2.1 /usr/local/bin/bash
 
 2. docker进入容器
 docker exec -it 43e575457614(或者容器名称) /bin/bash
+-it				前台式进程 
+43e575457614	容器名
+/bin/bash		进入容器后执行的脚本
+docker attach 容器id		多个窗口同时使用该命令进入该容器时，所有的窗口都会同步显示。如果有一个窗口阻塞了，那么其他窗口也无法再进行操作
+
 
 3. docker 登录私有仓库
 docker login 192.168.3.152  ->用户名douhl, 密码Yian2019
