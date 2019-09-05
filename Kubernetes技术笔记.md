@@ -95,12 +95,55 @@ Pod生命周期的变化主要体现在Pod API对象的Status字段, 是除Metad
 3. Succeeded: Pod中的所有容器都已经成功运行完毕, 并已经退出. 在运行一次性任务中比较常见
 4. Faild: Pod中至少有一个容器以不正常的状态（非 0 的返回码）退出。需要debug这个容器应用, 查看 Pod 的 Events 和日志。
 5. Unknown: 异常状态，意味着 Pod 的状态不能持续地被 kubelet 汇报给 kube-apiserver，这很有可能是主从节点（Master 和 Kubelet）间的通信出现了问题。
+## Deployment对象
+实现了Kubernetes项目的功能: Pod的"水平扩展/收缩", 此阿勇"滚动更新"(rolling update), 依赖API对象ReplicaSet
+### ReplicaSet yaml文件
+主要由副本数目定义和一个Pod模板组成. 也是Deployment的子集. 而Deployment控制器操作的是ReplicaSet对象, 不是Pod对象
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-set
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+```
+
+
 
 ## Kubernetes常用命令
 ### 1.查看安装Kubernetes系统日志
 journalctl -l -u kubelet
-### 2.
-### 3
+### 2. 查看Deployment状态信息
+```yaml
+$ kubectl get deployments
+NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   3 
+```
+
+1. DESIRED: 用户期望的Pod的个数 = spec.replicas的值
+2. CURRENT: 当前处于Running状态的Pod的个数
+3. UP-TO-DATE: 处于最新版本的Pod的个数. Pod的Spec部分和Deployment里的Pod模板定义一样
+4. AVAILABLE: 可用的Pod个数, 既是Running, 又是最新版本并处于Ready状态的Pod个数
+
+### 3 实时查看Deployment对象状态变化
+```yaml
+$ kubectl rollout status deployment/nginx-deployment
+Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
+deployment.apps/nginx-deployment successfully rolled out
+```
 ### 4
 ### 5
 ### 6
