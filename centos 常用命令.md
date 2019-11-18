@@ -129,7 +129,7 @@ gzip -9 man.config 直接压缩, 不保留源文件
 -# ：与gzip 同样的，都是在计算压缩比的参数，-9 最佳，-1 最快！
 用法和gzip类似
 ## scp命令的使用
-### 将本机文件赋值到远程服务器
+### 将本机文件复制到远程服务器
 ```bash
 scp /home/administrator/news.txt root@192.168.6.129:/etc/squid
 ```
