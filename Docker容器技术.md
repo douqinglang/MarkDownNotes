@@ -65,4 +65,7 @@ options说明:
 -p: 在提交时将容器暂停
 15. 在docker镜像仓库中保存(下载)镜像到本地
 docker save -o 本地要保存的镜像名.tar 远程镜像名(imageId)  # -o：指定保存的镜像的名字
-15. 
+16. 将本地机器制作为docker镜像
+tar -cvpf /tmp/xfce-tiggervnc-1025.tar / --exclude=/proc --exclude=/sys --exclude=/dev --exclude=/run --exclude=/boot 
+/proc、/sys、/run、/dev这几个目录都是系统启动时自动生成的！依赖与系统内核！
+

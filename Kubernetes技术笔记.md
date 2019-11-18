@@ -144,7 +144,8 @@ $ kubectl rollout status deployment/nginx-deployment
 Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
 deployment.apps/nginx-deployment successfully rolled out
 ```
-### 4
+### 4 带有命名空间Kubernetes 命令
+kubectl describe pods 名称 -n 命名空间
 ### 5
 ### 6
 ### 7
