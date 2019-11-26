@@ -68,4 +68,20 @@ docker save -o 本地要保存的镜像名.tar 远程镜像名(imageId)  # -o：
 16. 将本地机器制作为docker镜像
 tar -cvpf /tmp/xfce-tiggervnc-1025.tar / --exclude=/proc --exclude=/sys --exclude=/dev --exclude=/run --exclude=/boot 
 /proc、/sys、/run、/dev这几个目录都是系统启动时自动生成的！依赖与系统内核！
-
+17. 查看docker容器里运行了哪些进程
+docker top container_name/container_id -au
+-au 是查看启动时间, 状态等信息的
+18. 容器对于各种资源的使用情况 实时变化的列表,显示每个容器实例的CPU使用率、内存使用量以及可用量等等
+docker stats container_name/container_id
+19.  
+20.  
+21.  
+22.  
+23.  
+24.  
+25.  
+26.  
+27.  
+28.  
+29.  
+30.  

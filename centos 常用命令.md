@@ -46,6 +46,14 @@ ls -al
 mv a.txt .a.txt  // .开头的都是隐藏的
 ls -lh		//按照mb显示文件大小
 
+## 查看文件 ls
+-a 显示所有文件及目录 (ls内定将文件名或目录名称开头为"."的视为隐藏档，不会列出)
+-l 除文件名称外，亦将文件型态、权限、拥有者、文件大小等资讯详细列出
+-r 将文件以相反次序显示(原定依英文字母次序)
+-t 将文件依建立时间之先后次序列出
+-A 同 -a ，但不列出 "." (目前目录) 及 ".." (父目录)
+-h 按照mb显示文件大小
+
 ## 备份centos系统
 ```bash
 tar -cvpf /home/xfce-vnc-2.tar --directory=/ --exclude=/dev --exclude=/home/xfce-vnc-2.tar --exclude=/media --exclude=/mkimage-yum.sh --exclude=/mnt --exclude=/proc --exclude=/sys --exclude=/tmp /

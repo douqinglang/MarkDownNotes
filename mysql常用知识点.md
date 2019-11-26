@@ -7,7 +7,7 @@ ALTER TABLE goods_goods ADD isTrainCourse INT ( 1 ) DEFAULT 0 COMMENT '是否是
 SELECT CONCAT_WS(',','First name',NULL,'Last Name');返回结果为
 First name,Last Name
 ### IF(expr1,expr2,expr3)函数
-IF("document"=ttcl.train_lesson_object_type, "", ttcl.train_course_chapter_id)
+IF("document"!=ttcl.train_lesson_object_type, "", ttcl.train_course_chapter_id)
 ## 
 ## 
 ## 
