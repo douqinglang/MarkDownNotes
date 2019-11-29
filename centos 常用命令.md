@@ -2,7 +2,81 @@
 查看硬盘和分区-- # df -h
 解决bash: ip: command not found问题: # yum -y install initscripts
 解决bash: netstat: command not found问题: # yum install -y net-tools 
-
+### yum安装完软件后的清理安装包和header
+通常, yum下载的header和软件包都存储在cache中, 不会自动删除. 
+yum clean all -y
+1. 清楚软件包(/var/cache/yum)
+yum clean packages
+2. 清楚hearders(/var/cache/yum)
+yum clean headers
+3. 清楚旧的headers(/var/cache/yum)
+yum clean oldheaders
+4. 清除软件包和就的headers(/var/cache/yum)
+yum clean, yum clean all (=yum clean packages; yum clean oldheaders)
+## linux 执行脚本的三种方式 sh, source, exec
+### sh方式
+使用 sh script.sh执行脚本时, 当前shell是父进程, 会生成一个子进程的shell, 在子进程shell中执行脚本. 脚本执行完毕后, 退出子shell, 回到父shell.
+./script.sh 和 sh script.sh等效
+- 例如 
+使用loop.sh循环打印当前进程号
+```shell
+$ vi loop.sh
+#!/bin/sh
+while [ 1 = 1 ]; do 
+    echo $$
+    sleep 1
+done
+```
+查看当前父shell进程号
+```shell
+$ echo $$
+2454
+```
+执行loop.sh脚本后, 打印子进程shell进程号 2700
+```shell
+$ sh loop.sh
+2700
+2700
+```
+### source方式
+source script.sh, 在当前上下文中执行脚本, 不会产生新的进程. 脚本执行完毕放回当前shell
+. script.sh 等价于 source script.sh 故也叫 点命令
+### sh和source方式对上下文的影响
+- 例如, jump.sh例子
+1. 执行如下操作：1）跳到/，2）打印当前工作目录，3）打印Hello
+```shell
+#!/bin/sh
+cd /
+pwd
+echo Hello
+```
+2. 通过sh执行脚本, 修改的上下文不会影响当前shell. jump.sh退出以后, 工作目录保持不变.
+```shell
+$ pwd
+/home/riversec
+$ ./jump.sh 
+/
+Hello
+$ pwd
+/home/riversec
+```
+3. source执行脚本, 修改的上下文会影响当前shell. jump.sh 退出以后, 当前工作目录变成 ```/```
+```shell
+$ pwd
+/home/riversec
+$ source jump.sh 
+/
+Hello
+$ pwd
+/
+```
+### exec方式
+使用 exec command方式 会用command进程替换当前shell进程, 并保持pid保持不变. 执行完毕后, 直接退出, 不退回之前的shell环境
+```shell
+exec echo $$
+2364
+Connection to 192.168.2.123 closed.
+```
 ## linux 日志系统
 /var/log/meaasge    	#所有日志
 /var/log/secure 		#系统登录日志
@@ -113,15 +187,15 @@ j 参数，则以.tar.bz2
 -t ：可以用来检验一个压缩档的一致性～看看文件有无错误；
 -# ：压缩等级，-1 最快，但是压缩比最差、-9 最慢，但是压缩比最好！预设是-6 ～
 ```bash
-# 将/etc/man.config 複制到/tmp ，并且以gzip 压缩
+##将/etc/man.config 複制到/tmp ，并且以gzip 压缩
 [root@linux ~]# cd /tmp
 [root@linux tmp]# cp /etc/man.config .
 [root@linux tmp]# gzip man.config
-# 将范例一的文件内容读出来
+##将范例一的文件内容读出来
 [root@linux tmp]# zcat man.config.gz
-# 将范例一的文件解压缩
+##将范例一的文件解压缩
 [root@linux tmp]# gzip -d man.config.gz
-# 将范例三解开的man.config 用最佳的压缩比压缩，并保留原本的文件
+##将范例三解开的man.config 用最佳的压缩比压缩，并保留原本的文件
 [root@linux tmp]# gzip -9 -c man.config > man.config.gz
 gzip -9 man.config 直接压缩, 不保留源文件
 ```
@@ -161,23 +235,23 @@ www.abc.com              远程服务器的域名（当然也可以使用该服�
 ### 添加开机自启服务
 docker 服务为例，设置如下两条命令即可
 ```bash
-# systemctl enable docker.service #设置docker服务为自启动服务 相当于我们的 chkconfig docker on
-# systemctl start docker.service #启动docker服务
+systemctl enable docker.service #设置docker服务为自启动服务 相当于我们的 chkconfig docker on
+systemctl start docker.service #启动docker服务
 ```
 
 ### 添加开机自启脚本
 centos7中增加脚本有两种常用的方法,helloworld.sh为例
 ```bash
 #!/bin/bash
-# chkconfig: 2345 10 90 
-# description: myservice ....
+chkconfig: 2345 10 90 
+description: myservice ....
 echo "hello world"
 ```
 
 #### 方法一
 1. 赋予脚本可执行权限(/home/test.sh是你的脚本路径)
 ```bash
-# chmod +x /home/test.sh
+chmod +x /home/test.sh
 ```
 
 2. 打开/etc/rc.d/rc.local文件，在末尾增加如下内容
@@ -193,7 +267,7 @@ chmod +x /etc/rc.d/rc.local
 #### 方法二
 1. 将脚本移动到/etc/rc.d/init.d目录下
 ```bash
-# mv  /home/test.sh /etc/rc.d/init.d
+mv  /home/test.sh /etc/rc.d/init.d
 ```
 
 2. 增加脚本的可执行权限
@@ -304,8 +378,8 @@ find / (查找范围) -name "查找名字"          -- 查找文件
 ## shell 脚本 - 安全无限制启动vncserver
 ```bash
 #!/bin/bash
-# chkconfig: 2345 100 95
-# description: start vncserver :1 port 5901
+chkconfig: 2345 100 95
+description: start vncserver :1 port 5901
 file="/tmp/.X1-lock"
 tmpDirectory="/tmp/"
 directory="/tmp/.X11-unix/"
@@ -336,8 +410,6 @@ then
 else
     echo "$svcname is started"
 fi
-/usr/bin/bash
-
 ```
 
 

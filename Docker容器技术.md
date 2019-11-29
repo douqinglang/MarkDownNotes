@@ -52,6 +52,12 @@ docker port container_ID
 11. 查看所有运行中的容器
 docker container list
 docker ps
+  -a :显示所有的容器，包括未运行的
+  -l :显示最近创建的容器
+  -n :列出最近创建的n个容器
+  --no-trunc :不截断输出
+  -q :静默模式，只显示容器编号
+  -s :显示总的文件大小
 12. 查看已经停止的容器
 docker container list -all
 13. Docker导入本地镜像
@@ -73,7 +79,11 @@ docker top container_name/container_id -au
 -au 是查看启动时间, 状态等信息的
 18. 容器对于各种资源的使用情况 实时变化的列表,显示每个容器实例的CPU使用率、内存使用量以及可用量等等
 docker stats container_name/container_id
-19.  
+19. 启动一个已经停止的容器 docker start
+docker start 停止容器id或名称
+docker start 还有两个参数 
+	-i :交互模式启动
+	-a :附加进程启动
 20.  
 21.  
 22.  

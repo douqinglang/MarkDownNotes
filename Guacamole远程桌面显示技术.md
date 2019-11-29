@@ -1,4 +1,5 @@
 # Guacamole远程桌面显示
+## 使用0.9.14版本的 guacd
 一: 安装Guacamole服务端
 二: 配置Guacamole服务端
 	2.1: 默认身份验证方法: guacamole所有的用户和连接是从user-mapping.xml文件中读取和存储

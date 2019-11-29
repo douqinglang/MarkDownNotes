@@ -231,8 +231,29 @@ deployment.apps/nginx-deployment successfully rolled out
 ### 4 带有命名空间Kubernetes 命令
 1. kubectl describe pods 名称 -n 命名空间
 2. kubectl exec -it pod名称 /bin/bash -n 命令空间
-### 5
-### 6
+### 5 查看pods 日志
+输出pod中一个容器的日志。如果pod只包含一个容器则可以省略容器名
+```shell
+kubectl logs [-f] [-p] POD [-c CONTAINER]
+```
+参数选项
+```shell
+  -c, --container="": 容器名。
+  -f, --follow[=false]: 指定是否持续输出日志。
+      --interactive[=true]: 如果为true，当需要时提示用户进行输入。默认为true。
+      --limit-bytes=0: 输出日志的最大字节数。默认无限制。
+  -p, --previous[=false]: 如果为true，输出pod中曾经运行过，但目前已终止的容器的日志。
+      --since=0: 仅返回相对时间范围，如5s、2m或3h，之内的日志。默认返回所有日志。只能同时使用since和since-time中的一种。
+      --since-time="": 仅返回指定时间（RFC3339格式）之后的日志。默认返回所有日志。只能同时使用since和since-time中的一种。
+      --tail=-1: 要显示的最新的日志条数。默认为-1，显示所有的日志。
+      --timestamps[=false]: 在日志中包含时间戳。
+```
+kubectl logs pod_name --tail -f --timestamps
+### 6 查看所有的pod
+查看所有pod在所有的命名空间中
+```shell
+kubectl get pod -A 
+```
 ### 7
 ### 8
 ### 9
