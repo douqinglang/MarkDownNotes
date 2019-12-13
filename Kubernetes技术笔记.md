@@ -248,7 +248,7 @@ kubectl logs [-f] [-p] POD [-c CONTAINER]
       --tail=-1: 要显示的最新的日志条数。默认为-1，显示所有的日志。
       --timestamps[=false]: 在日志中包含时间戳。
 ```
-kubectl logs pod_name --tail -f --timestamps
+kubectl logs pod_name --follow=true --tail=-1 --timestamps=true
 ### 6 查看所有的pod
 查看所有pod在所有的命名空间中
 ```shell
