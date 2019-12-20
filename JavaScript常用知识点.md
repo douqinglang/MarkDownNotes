@@ -45,7 +45,8 @@ function getClosure(message) {
 }
 ```
 
-### js cookie的set和get
+# js常用工具代码
+## cookie的set和get
 ```javascript
 var Cookie = {
 	set: function (key, val, time) {//设置cookie方法
@@ -76,4 +77,37 @@ var Cookie = {
 		document.cookie = key + "=v; expires =" + date.toGMTString();//设置cookie
 	}
 };
+```
+## 页面传值获取url携带的参数
+```javascript
+function getUrlParam(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+	var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+	if (r != null) return unescape(r[2]);
+	return null; //返回参数值
+}
+```
+## byte, kb, mb, gb字节转化
+```javascript
+function formatBytes(bytes, decimals) {
+	if (bytes === 0) return '0 Byte';
+	var k = 1024;
+	var dm = decimals + 1 || 3;
+	var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	var i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+```
+## 将毫秒值转为本地时间
+```javascript
+function getLocalTime(nS) {
+	var date = new Date(nS);
+	var Y = date.getFullYear() + '-';
+	var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+	var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+	var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+	var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+	var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+	return Y + M + D + h + m + s;
+}
 ```
