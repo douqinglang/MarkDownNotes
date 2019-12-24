@@ -254,6 +254,18 @@ kubectl logs pod_name --follow=true --tail=-1 --timestamps=true
 ```shell
 kubectl get pod -A 
 ```
-### 7
+### 7 查看资源描述
+#### Describe a node
+  kubectl describe nodes kubernetes-node-emt8.c.myproject.internal
+#### Describe a pod
+  kubectl describe pods/nginx
+#### Describe a pod identified by type and name in "pod.json"
+  kubectl describe -f pod.json
+#### Describe all pods
+  kubectl describe pods
+#### Describe pods by label name=myLabel
+  kubectl describe po -l name=myLabel
+#### Describe all pods managed by the 'frontend' replication controller (rc-created pods get the name of the rc as a prefix in the pod the name).
+  kubectl describe pods frontend
 ### 8
 ### 9
