@@ -250,9 +250,10 @@ kubectl logs [-f] [-p] POD [-c CONTAINER]
 ```
 kubectl logs pod_name --follow=true --tail=-1 --timestamps=true
 ### 6 查看所有的pod
-查看所有pod在所有的命名空间中
+查看所有pod在所有的命名空间中, -o wide 详细的查看
 ```shell
 kubectl get pod -A 
+kubectl get pod -A -o wide
 ```
 ### 7 查看资源描述
 #### Describe a node

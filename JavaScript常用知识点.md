@@ -111,3 +111,14 @@ function getLocalTime(nS) {
 	return Y + M + D + h + m + s;
 }
 ```
+## js字符串判空
+```javascript
+//判断字符是否为空的方法
+function isEmpty(obj) {
+	if (typeof obj == "undefined" || obj == null || obj == "") {
+		return true;
+	} else {
+		return false;
+	}
+}
+```
