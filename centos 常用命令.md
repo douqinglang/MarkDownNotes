@@ -411,6 +411,14 @@ else
     echo "$svcname is started"
 fi
 ```
-
+## 查看linux系统使用的哪种桌面环境类型
+```bash
+// 1: 进入系统桌面后
+env | grep DESKTOP_SESSION=
+// 2: 进入系统桌面后
+echo $DESKTOP_SESSION
+// 3: 进入系统桌面后
+echo $GDMSESSION
+```
 
 
