@@ -86,3 +86,7 @@ crontab -l查看当前用户的计划任务
 chkconfig –list列出所有系统服务
 chkconfig –list | grep on列出所有启动的系统服务
 ```
+## kali打包系统命令
+```bash
+tar -cvpzf kali-x11vnc.v1.0.tgz --exclude=/kali-x11vnc.v1.0.tgz --exclude=/lost+found --exclude=/proc --exclude=/sys --exclude=/tmp  /
+```

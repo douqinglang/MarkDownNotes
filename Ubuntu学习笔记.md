@@ -27,7 +27,7 @@ apt-get install packagename 安装包
 apt-get install packagename –reinstall 重新安装包
 apt-get -f install 修复安装”-f = –fix-missing”
 apt-get remove packagename 删除包
-apt-get remove packagename –purge 删除包，包括删除配置文件等
+apt-get remove packagename -–purge 删除包，包括删除配置文件等
 apt-get update 更新源
 apt-get upgrade 更新已安装的包
 apt-get dist-upgrade 升级系统
@@ -39,4 +39,8 @@ apt-get source packagename 下载该包的源代码
 apt-get clean 清理无用的包
 apt-get autoclean 清理无用的包
 apt-get check 检查是否有损坏的依赖
+```
+## xvncserver启动
+```bash
+x11vnc -forever -loop -repeat -rfbauth /root/.vnc/passwd -rfbport 5901
 ```
