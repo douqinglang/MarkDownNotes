@@ -39,8 +39,11 @@ apt-get source packagename 下载该包的源代码
 apt-get clean 清理无用的包
 apt-get autoclean 清理无用的包
 apt-get check 检查是否有损坏的依赖
+apt list --installed 显示apt命令安装的所有软件包, 也包含由于依赖而被安装的软件包
 ```
 ## xvncserver启动
 ```bash
-x11vnc -forever -loop -repeat -rfbauth /root/.vnc/passwd -rfbport 5901
+x11vnc -noncache -forever -loop -repeat -auth /var/run/lightdm/root/:1 -rfbauth /root/.vnc/passwd -rfbport 5901 
+x11vnc -noncache -forever -find -rfbauth /root/.vnc/passwd -rfbport 5901
+Xvnc -geometry 1366x768 -alwaysshared :1
 ```

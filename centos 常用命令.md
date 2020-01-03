@@ -382,7 +382,7 @@ chkconfig: 2345 100 95
 description: start vncserver :1 port 5901
 file="/tmp/.X1-lock"
 tmpDirectory="/tmp/"
-directory="/tmp/.X11-unix/"
+directory="/tmp/.X11-unix/X1"
 svcname="Xvnc"
 if  ! ps -ef | grep $svcname | egrep -v grep >/dev/null
 then
@@ -420,5 +420,18 @@ echo $DESKTOP_SESSION
 // 3: 进入系统桌面后
 echo $GDMSESSION
 ```
+
+## 添加用户
+```bash
+// username 就是你想要添加的用户
+useradd -m username
+// 为新添加用户设置密码
+passwd username //根据提示设置
+// 创建的用户添加到sudo用户组 安装软件权限 特权模式权限等
+usermod -a -G sudo username
+//创建的用户的默认外壳改成bash
+chsh -s /bin/bash username
+```
+## 
 
 
