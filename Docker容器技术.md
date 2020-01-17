@@ -24,7 +24,7 @@ docker exec -it 43e575457614(或者容器名称) /bin/bash
 -it				前台式进程 
 43e575457614	容器名
 /bin/bash		进入容器后执行的脚本
-docker attach 容器id		多个窗口同时使用该命令进入该容器时，所有的窗口都会同步显示。如果有一个窗口阻塞了，那么其他窗口也无法再进行操作
+docker attach 容器id多个窗口同时使用该命令进入该容器时，所有的窗口都会同步显示。如果有一个窗口阻塞了，那么其他窗口也无法再进行操作
 
 
 3. docker 登录私有仓库
@@ -84,7 +84,40 @@ docker start 停止容器id或名称
 docker start 还有两个参数 
 	-i :交互模式启动
 	-a :附加进程启动
-20.  
+20. 将docker镜像导出和加载
+- 1: 使用docker save 和 docker load
+```bash
+//根据 ID 将镜像保存成一个文件
+docker save 0fdf2b4c26d3 > hangge_server.tar
+// docker load 命令则可将这个镜像文件载入进来
+docker load < hangge_server.tar
+```
+- 2: 使用docker export 和 docker import
+```bash
+//  docker export 命令根据容器 ID 将镜像导出成一个文件
+docker export f299f501774c > hangger_server.tar
+// docker import 命令则可将这个镜像文件导入进来
+docker import - new_hangger_server < hangger_server.tar
+```
+- 3: 两种方式不可混用
+1，文件大小不同
+export 导出的镜像文件体积小于 save 保存的镜像
+
+2，是否可以对镜像重命名
+docker import 可以为镜像指定新名称
+docker load 不能对载入的镜像重命名
+
+3，是否可以同时将多个镜像打包到一个文件中
+docker export 不支持
+docker save 支持
+
+4，是否包含镜像历史
+export 导出（import 导入）是根据容器拿到的镜像，再导入时会丢失镜像所有的历史记录和元数据信息（即仅保存容器当时的快照状态），所以无法进行回滚操作。
+而 save 保存（load 加载）的镜像，没有丢失镜像的历史，可以回滚到之前的层（layer）。
+
+5，应用场景不同
+docker export 的应用场景：主要用来制作基础镜像，比如我们从一个 ubuntu 镜像启动一个容器，然后安装一些软件和进行一些设置后，使用 docker export 保存为一个基础镜像。然后，把这个镜像分发给其他人使用，比如作为基础的开发环境。
+docker save 的应用场景：如果我们的应用是使用 docker-compose.yml 编排的多个镜像组合，但我们要部署的客户服务器并不能连外网。这时就可以使用 docker save 将用到的镜像打个包，然后拷贝到客户服务器上使用 docker load 载入。
 21.  
 22.  
 23.  

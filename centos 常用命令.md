@@ -432,6 +432,9 @@ usermod -a -G sudo username
 //创建的用户的默认外壳改成bash
 chsh -s /bin/bash username
 ```
-## 
+## 安装软件时自动输入
+```bash
+echo '输入的文字'|sudo -S apt-get install 插件名-y
+```
 
 
