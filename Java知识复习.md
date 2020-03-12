@@ -32,7 +32,7 @@ jvm是多线程的至少有一个主线程和一个gc线程
 
 ### 1.3: 线程的生命周期
 
-![image-20200309094330455](C:\Users\douhl\Desktop\Java知识复习.assets\image-20200309094330455.png)
+![image-20200309094330455](Java知识复习.assets\image-20200309094330455.png)
 
 >1：初始（New）：新创建一个线程对象，但还没调用start()方法。
 >
