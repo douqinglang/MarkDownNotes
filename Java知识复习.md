@@ -228,6 +228,241 @@ class SaleTicket{
 
   
 
+### 1.6：线程之间的通信 - 消费者和生产者模型
+
+![image-20200312143232022](Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200312143232022.png)
+
+#### 1.6.1：普通实现生产者和消费者 - wait()，notify()，notifyAll()
+
+```java
+/**
+ * 生产者和消费者模型
+ * 生产者+1
+ * 消费者-1
+ * 固定模式: 1、判断，2、干活和等待，3、通知
+ * 线程创建规则
+ * 1、高内聚，低耦合
+ * 2、线程 操作 资源类
+ */
+public class ThreadDemo3 {
+    public static void main(String[] args) {
+        OperationNum operationNum = new OperationNum();
+        new Thread(()->{
+            for (int i = 0; i < 10; i++) {
+                try {
+                    operationNum.increment();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        },"a").start();
+        new Thread(()->{
+            for (int i = 0; i < 10; i++) {
+                try {
+                    operationNum.decrement();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        },"b").start();
+        new Thread(()->{
+            for (int i = 0; i < 10; i++) {
+                try {
+                    operationNum.increment();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        },"c").start();
+        new Thread(()->{
+            for (int i = 0; i < 10; i++) {
+                try {
+                    operationNum.decrement();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        },"d").start();
+    }
+}
+class OperationNum{
+    private Integer num = 0;
+
+    // 生产者 +1
+    public synchronized void increment() throws InterruptedException {
+        // 判断
+        while(num!=0){
+            // 等待
+            this.wait();
+        }
+        // 否则+1 干活
+        num++;
+        System.out.println(Thread.currentThread().getName() + " 线程 " + num);
+        // 通知
+        this.notifyAll();
+
+    }
+    // 消费者 -1
+    public synchronized void  decrement() throws InterruptedException {
+        // 判断
+        while (num==0){
+            // 等待
+            this.wait();
+        }
+        // 干活
+        num--;
+        System.out.println(Thread.currentThread().getName() + " 线程 " + num);
+        // 通知
+        this.notifyAll();
+    }
+}
+```
+
+![image-20200312141528618](Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200312141528618.png)
+
+#### 1.6.2：最新实现生产者和消费者 - lock(), await(), singal()
+
+<img src="Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200312133103971.png" alt="image-20200312133103971" style="zoom:150%;" />
+
+```java
+/**
+ * A B C三个线程 A线程输出5次， B线程输出10次， C线程输出15次， A B C 依次输出
+ * 线程规则
+ * 1、高内聚、低耦合
+ * 2、线程 操作 资源类
+ * 线程间通信规则
+ * 加锁 判断 干活 唤醒 解锁
+ */
+public class ThreadDemo5 {
+    public static void main(String[] args) {
+        PrintDemo printDemo = new PrintDemo();
+        new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                printDemo.pritn5();
+            }
+        }, "A").start();
+        new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                printDemo.pritn10();
+            }
+        }, "B").start();
+        new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                printDemo.pritn15();
+            }
+        }, "C").start();
+    }
+}
+/**
+ * 资源类
+ */
+class PrintDemo {
+    // 属性
+    private Integer num = 1;
+    // 锁对象
+    private final Lock lock = new ReentrantLock();
+    // 锁条件对象
+    private final Condition condition_A = lock.newCondition();
+    private final Condition condition_B = lock.newCondition();
+    private final Condition condition_C = lock.newCondition();
+    /**
+     * A 线程 打印5次
+     */
+    public void pritn5() {
+        // 上锁
+        lock.lock();
+        try {
+            // while循环判断
+            while (num != 1) {
+                try {
+                    // 等待
+                    condition_A.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 干活 5次循环输出
+            for (int i = 0; i < 5; i++) {
+                System.out.println(Thread.currentThread().getName() + "线程: " + (i + 1));
+            }
+            num = 2;
+            // 唤醒b
+            condition_B.signal();
+        } finally {
+            // 解锁
+            lock.unlock();
+        }
+    }
+    /**
+     * B 线程 打印10次
+     */
+    public void pritn10() {
+        lock.lock();
+        try {
+            // while循环判断
+            while (num != 2) {
+                try {
+                    // 等待
+                    condition_B.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 干活
+            for (int i = 0; i < 10; i++) {
+                System.out.println(Thread.currentThread().getName() + " 线程： " + (i + 1));
+            }
+            num = 3;
+            // 通知 唤醒
+            condition_C.signal();
+        } finally {
+            // 解锁
+            lock.unlock();
+        }
+    }
+    /**
+     * C 线程 打印15次
+     */
+    public void pritn15() {
+        // 加锁
+        lock.lock();
+        try {
+            // while循环判断
+            while (num != 3) {
+                try {
+                    // 等待
+                    condition_C.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 干活
+            for (int i = 0; i < 15; i++) {
+                System.out.println(Thread.currentThread().getName() + " 线程 " + (i + 1));
+            }
+            num = 1;
+            // 通知 唤醒A
+            condition_A.signal();
+        } finally {
+            // 解锁
+            lock.unlock();
+        }
+    }
+}
+```
+
+
+
+### 1.7：线程池技术
+
+#### 1.7.1：线程池创建规则
+
+![image-20200312133749206](Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200312133749206.png)
+
+
+
+
+
 ## 2：网络编程 Socket
 
 IP地址，端口，协议。
