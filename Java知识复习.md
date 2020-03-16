@@ -459,7 +459,241 @@ class PrintDemo {
 
 ![image-20200312133749206](Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200312133749206.png)
 
+##### 1.7.1.1：自定义线程工厂类
 
+```java
+/**
+ * 自定义线程工厂类
+ * @author douhl
+ * @date 2020/3/16 16:35
+ */
+public class CustomThreadFactory implements ThreadFactory {
+    /**
+     * 线程池的数量， 使用原子操作
+     */
+    private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    /**
+     * 线程计数，原子操作
+     */
+    private static final AtomicInteger threadNumber = new AtomicInteger(1);
+    /**
+     * 线程组
+     */
+    private final ThreadGroup threadGroup;
+    /**
+     * 线程名称前缀
+     */
+    private final String namePrefix;
+    /**
+     * 线程名称
+     */
+    private final String threadName;
+    /**
+     * 自定义线程工厂构造方法
+     *
+     * @param threadName  线程名
+     */
+    private CustomThreadFactory( String threadName) {
+        this.threadName = threadName;
+        SecurityManager s = System.getSecurityManager();
+        threadGroup = (s != null)? s.getThreadGroup() :
+                Thread.currentThread().getThreadGroup();
+        namePrefix = "customPool-" +
+                poolNumber.getAndIncrement() +
+                "-thread-";
+    }
+    public static CustomThreadFactory getInstance(String threadName){
+        return new CustomThreadFactory(threadName);
+    }
+    /**
+     * Constructs a new {@code Thread}.  Implementations may also initialize
+     * priority, name, daemon status, {@code ThreadGroup}, etc.
+     *
+     * @param r a runnable to be executed by new thread instance
+     * @return constructed thread, or {@code null} if the request to
+     * create a thread is rejected
+     */
+    @Override
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(threadGroup, r,
+                namePrefix + threadNumber.getAndIncrement() + threadName,
+                0);
+        if (t.isDaemon()) {
+            t.setDaemon(false);
+        }
+        if (t.getPriority() != Thread.NORM_PRIORITY) {
+            t.setPriority(Thread.NORM_PRIORITY);
+        }
+        return t;
+    }
+}
+```
+
+
+
+##### 1.7.1.2：线程池类和线程资源类
+
+```java
+/**
+ * 线程池技术
+ * 线程之间的通信 - 生产者和消费者模型
+ * 1、判断 干活 唤醒通知
+ * @author douhl
+ * @date 2020/3/16 09:29
+ */
+public class ThreadPoolDome1 {
+    public static void main(String[] args) {
+        ThreadData threadData =  new ThreadData();
+        ExecutorService executorServiceA = buildThreadPoolExecutor("a");
+        executorServiceA.submit(() -> {
+            for (int i = 0; i < 10; i++) {
+                threadData.increment();
+            }
+        });
+        executorServiceA.submit(() -> {
+            for (int i = 0; i < 10; i++) {
+                threadData.increment();
+            }
+        });
+        executorServiceA.submit(()->{
+            for (int i = 0; i < 10; i++) {
+                threadData.decrement();
+            }
+        });
+        executorServiceA.submit(()->{
+            for (int i = 0; i < 10; i++) {
+                threadData.decrement();
+            }
+        });
+        // shutdown：等待线程任务结束销毁 shutdownNow：不等待线程结束直接销毁
+        executorServiceA.shutdown();
+        System.out.println(" 线程池销毁完毕。。。");
+    }
+    public static ExecutorService  buildThreadPoolExecutor(String name) {
+        ExecutorService executorService = new ThreadPoolExecutor(
+                // 核心线程数
+                1,
+                // 最大线程数
+                4,
+                // 最长存活时间
+                1,
+                // 存活时间计量单位
+                TimeUnit.SECONDS,
+                // 工作队列 阻塞队列
+                new ArrayBlockingQueue<Runnable>(1),
+                // 线程工厂
+               CustomThreadFactory.getInstance(name),
+                // 拒绝策略
+                new ThreadPoolExecutor.DiscardPolicy()
+        );
+        System.out.println(" 线程池创建完毕。。。");
+        return executorService;
+    }
+}
+class ThreadData {
+    private final Lock lock = new ReentrantLock();
+    private final Condition incrementCondition = lock.newCondition();
+    private final Condition decrementCondition = lock.newCondition();
+    private Integer num = 0;
+    private AtomicInteger count = new AtomicInteger(0);
+    public void increment() {
+        // 上锁
+        lock.lock();
+        try {
+            // 判断
+            while (num != 0) {
+                // 等待
+                try {
+                    incrementCondition.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 干活
+            num++;
+            System.out.println(Thread.currentThread().getName() + " 线程 " + num + " 执行次数：" + count.addAndGet(1));
+            // 唤醒 通知
+            decrementCondition.signal();
+        } finally {
+            // 解锁
+            lock.unlock();
+        }
+    }
+    public void decrement() {
+        // 上锁
+        lock.lock();
+        try {
+            // 循环判断
+            while (num == 0) {
+                // 等待
+                try {
+                    decrementCondition.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            num--;
+            // 干活
+            System.out.println(Thread.currentThread().getName() + " 线程 " + num+ " 执行次数：" + count.addAndGet(1));
+            // 唤醒 通知
+            incrementCondition.signal();
+        } finally {
+            // 解锁
+            lock.unlock();
+        }
+    }
+}
+```
+
+
+
+#### 1.7.2：线程池7大参数
+
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler){}
+```
+
+- **corePoolSize**:int：线程池核心线程数，线程数量是逐步到达corePoolSize值的，也是维护的最小的线程数量，即使这些线程处理空闲状态，他们也不会被销毁，除非设置了allowCoreThreadTimeOut=true。例如corePoolSize被设置为10，而任务数量只有5，则线程池中最多会启动5个线程，而不是一次性地启动10个线程。
+- **maximumPoolSize**:int：线程池中能容纳的最大线程数量，如果超出，则使用RejectedExecutionHandler拒绝策略处理。 
+- **keepAliveTime**:long：线程的存活时间。两个约束条件：一：该参数针对的是超过corePoolSize数量的线程；二：处于非运行状态的线程。举个例子：如果corePoolSize（最小线程数）为10，maxinumPoolSize（最大线程数）为20，而此时线程池中有15个线程在运行，过了一段时间后，其中有3个线程处于等待状态的时间超过keepAliveTime指定的时间，则结束这3个线程，此时线程池中则还有12个线程正在运行。
+- **unit**:TimeUnit：keepAliveTime的时间单位。
+- **workQueue**:BlockingQueue：任务队列。当线程池中的线程都处于运行状态，而此时任务数量继续增加，则需要一个容器来容纳这些任务，这就是任务队列。
+- **threadFactory**:ThreadFactory：线程工作类，定义如何启动一个线程，可以设置线程的名称，并且可以确定是否是后台线程等。
+- **handler**:RejectedExecutionHandler：拒绝任务处理器。由于超出线程数量和队列容量而对继续增加的任务进行处理的程序。AbortPolicy（默认）：直接抛弃 ；CallerRunsPolicy：调用者线程中直接执行被拒绝任务的run方法，除非线程池已经shutdown，则直接抛弃任务； DiscardOldestPolicy：抛弃队列中最久的任务
+  DiscardPolicy：抛弃当前任务
+
+
+
+#### 1.7.3：任务队列的三大模式
+
+<img src="Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200316153025298.png" alt="image-20200316153025298"  />
+
+> *Direct handoffs*：**直接模式**。`SynchronousQueue`
+>
+> `SynchronousQueue`：一个不缓存任务的阻塞队列，生产者放入一个任务必须等到消费者取出这个任务。也就是说新任务进来时，不会缓存，而是直接被调度执行该任务，如果没有可用线程，则创建新线程，如果线程数量达到maxPoolSize，则执行拒绝策略。
+
+> *Unbounded queues*：**无界模式**。`PriorityBlockingQueue,LinkedBlockingQueue`
+>
+> `PriorityBlockingQueue`：具有优先级的无界阻塞队列，优先级通过参数Comparator实现。
+>
+> `LinkedBlockingQueue`：基于链表的无界阻塞队列（其实最大容量为Interger.MAX），按照FIFO排序。由于该队列的近似无界性，当线程池中线程数量达到corePoolSize后，再有新任务进来，会一直存入该队列，而不会去创建新线程直到maxPoolSize，因此使用该工作队列时，参数maxPoolSize其实是不起作用的。
+
+> *Bounded queues*：**有界模式**。`ArrayBlockingQueue`
+>
+> `ArrayBlockingQueue`：基于数组的有界阻塞队列，按FIFO排序。新任务进来后，会放到该队列的队尾，有界的数组可以防止资源耗尽问题。当线程池中线程数量达到corePoolSize后，再有新任务进来，则会将任务放入该队列的队尾，等待被调度。如果队列已经是满的，则创建一个新线程，如果线程数量已经达到maxPoolSize，则会执行拒绝策略。
+
+#### 1.7.4：四大拒绝策略
+
+- `CallerRunsPolicy`：在调用者线程中直接执行被拒绝任务的run方法，除非线程池已经shutdown，则直接抛弃任务
+- `AbortPolicy`：直接丢弃任务，并抛出RejectedExecutionException异常
+- `DiscardPolicy`：直接丢弃任务，什么都不做
+- `DiscardOldestPolicy`：抛弃进入队列最早的那个任务，然后尝试把这次拒绝的任务放入队列
 
 
 
@@ -495,6 +729,10 @@ IP地址，端口，协议。
 1. 类型.class， String.class
 2. 对象.getClass()，“Hello”.getClass()
 3. Class.forName()，Class.forName("java.lang.String")
+
+
+
+
 
 
 
