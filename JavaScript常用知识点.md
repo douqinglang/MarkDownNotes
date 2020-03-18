@@ -121,4 +121,8 @@ function isEmpty(obj) {
 		return false;
 	}
 }
+// 简化
+function isEmpty(obj) {
+        return typeof obj == "undefined" || obj == null || obj === "";
+    }
 ```
