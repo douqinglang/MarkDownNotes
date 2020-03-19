@@ -465,7 +465,7 @@ class PrintDemo {
 
 ![image-20200312133749206](Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200312133749206.png)
 
-##### 1.7.1.1：自定义线程工厂类
+##### 1.8.1.1：自定义线程工厂类
 
 ```java
 /**
@@ -537,7 +537,7 @@ public class CustomThreadFactory implements ThreadFactory {
 
 
 
-##### 1.7.1.2：线程池类和线程资源类
+##### 1.8.1.2：线程池类和线程资源类
 
 ```java
 /**
@@ -653,7 +653,7 @@ class ThreadData {
 
 
 
-#### 1.7.2：线程池7大参数
+#### 1.8.2：线程池7大参数
 
 ```java
 public ThreadPoolExecutor(int corePoolSize,
@@ -676,7 +676,7 @@ public ThreadPoolExecutor(int corePoolSize,
 
 
 
-#### 1.7.3：任务队列的三大模式
+#### 1.8.3：任务队列的三大模式
 
 <img src="Java%E7%9F%A5%E8%AF%86%E5%A4%8D%E4%B9%A0.assets/image-20200316153025298.png" alt="image-20200316153025298"  />
 
@@ -694,7 +694,7 @@ public ThreadPoolExecutor(int corePoolSize,
 >
 > `ArrayBlockingQueue`：基于数组的有界阻塞队列，按FIFO排序。新任务进来后，会放到该队列的队尾，有界的数组可以防止资源耗尽问题。当线程池中线程数量达到corePoolSize后，再有新任务进来，则会将任务放入该队列的队尾，等待被调度。如果队列已经是满的，则创建一个新线程，如果线程数量已经达到maxPoolSize，则会执行拒绝策略。
 
-#### 1.7.4：四大拒绝策略
+#### 1.8.4：四大拒绝策略
 
 - `CallerRunsPolicy`：在调用者线程中直接执行被拒绝任务的run方法，除非线程池已经shutdown，则直接抛弃任务
 - `AbortPolicy`：直接丢弃任务，并抛出RejectedExecutionException异常
